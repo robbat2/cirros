@@ -1,0 +1,29 @@
+architecture: "@@ARCH@@"
+creation_date: @@COMMIT_DATE_SECONDS@@
+properties:
+    architecture: "@@ARCH@@"
+    description: "Cirros (@@VERSION@@)"
+    os: "cirros"
+    release: "@@STREAM@@"
+templates:
+    /var/lib/cloud/seed/nocloud/meta-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-meta.tpl
+        properties:
+            default: '"user-meta": "not-defined"'
+    /var/lib/cloud/seed/nocloud/user-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-user.tpl
+        properties:
+            default: ""
+    /var/lib/cloud/seed/nocloud/vendor-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-vendor.tpl
+        properties:
+            default: "{}"
