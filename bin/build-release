@@ -232,6 +232,7 @@ for arch in ${ARCHES}; do
         ln blank.img $p-blank.img &&
         ln disk.img $p-disk.img &&
         ln filesys.tar.gz $p-lxc.tar.gz &&
+        ln filesys.tar.xz $p-lxc.tar.xz &&
         true
     );
 done
