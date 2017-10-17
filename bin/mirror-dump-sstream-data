@@ -63,6 +63,8 @@ elif [ -z "$CIRROS_GIT" ]; then
     CIRROS_GIT=$(t=$(readlink -f "$0") && cd "${t%/*}/.." && pwd)
 fi
 
+LXD_META=$(t=$(readlink -f "$0") && cd "${t%/*}/../lxd-meta" && pwd)
+
 OIFS="$IFS"
 declare -A VERSION2SERIAL
 VERSION2SERIAL=(
@@ -72,6 +74,59 @@ VERSION2SERIAL=(
     [0.3.2~pre2]="20131218" [0.3.2~pre3]="20140315"
     [0.3.2]="20140317"
 )
+
+generate_lxd() {
+    local meta_path=""
+    local gzpath="$1" xzpath="$2" lxdpath="$3" \
+        content_id=$4 product_name=$5 serial=$6 \
+        arch="$7" version="$8" pubname="$9" \
+        stream="${10}"
+
+    if [ ! -f "$xzpath" ]; then
+        zcat "$gzpath" | xz > "$xzpath.tmp" &&
+            mv "$xzpath.tmp" "$xzpath" ||
+            { error "failed to create $xzpath"; return 1; }
+    fi
+    if [ ! -f "$lxdpath" ]; then
+        tar -C "$LXD_META" -cJf "$lxdpath.tmp" metadata.yaml templates &&
+            mv "$lxdpath.tmp" "$lxdpath" ||
+            { error "failed to create $lxdpath"; return 1; }
+    fi
+
+    local csha=""
+    csha=$(cat "$xzpath" "$lxdpath" | sha256sum) && csha="${csha%%  -}" ||
+        { error "failed create combined sha for $lxdpath"; return 1; }
+
+    local path="" local req_out="" out=""
+    for path in "$xzpath" "$lxdpath"; do
+        md5=$(md5sum "${path}") && md5="${md5%%  ${path}}"
+        sha256=$(sha256sum "${path}") && sha256="${sha256%%  ${path}}"
+
+        case "$path" in
+            "$xzpath")
+                ftype="lxd.tar.xz"
+                ;;
+            "$lxdpath")
+                ftype="root.tar.xz"
+                ;;
+        esac
+        for item in "$content_id" "$product_name" "$serial" "$ftype"; do
+            req_out="${req_out}${tab}${item}"
+        done
+        req_out=${req_out#${tab}}
+
+        out=""
+        for i in ftype path arch version size sha256 md5 pubname stream; do
+            out="${out}${tab}${i}=${!i}"
+        done
+        out=${out#${tab}}
+
+        if [ "$ftype" = "lxd.tar.xz" ]; then
+            out="${out}${tab}combined_rootxz_sha256=$csha"
+        fi
+        printf "%s\n" "${req_out}${tab}${out}"
+    done
+}
 
 #content-id product_name version_name img_name [key=value [key=value]]
 content_id_base="net.cirros-cloud:%(stream)s:download"
@@ -119,15 +174,15 @@ for ent in "${files[@]}"; do
     product_name="$rdns:standard:$vmaj.$vmin:$arch"
     content_id="${content_id_base//%(stream)s/${stream}}"
 
+    md5=$(md5sum "${path}") && md5="${md5%%  ${path}}"
+    sha256=$(sha256sum "${path}") && sha256="${sha256%%  ${path}}"
+    pubname="${baseproduct}-${version}-${arch}"
+
     req_out=""
     for item in "$content_id" "$product_name" "$serial" "$ftype"; do
         req_out="${req_out}${tab}${item}"
     done
     req_out=${req_out#${tab}}
-
-    md5=$(md5sum "${path}") && md5="${md5%%  ${path}}"
-    sha256=$(sha256sum "${path}") && sha256="${sha256%%  ${path}}"
-    pubname="${baseproduct}-${version}-${arch}"
 
     out=""
     for i in ftype path arch version size sha256 md5 pubname stream; do
@@ -135,6 +190,16 @@ for ent in "${files[@]}"; do
     done
     out=${out#${tab}}
     printf "%s\n" "${req_out}${tab}${out}"
+
+    case "$path" in
+        *.tar.gz)
+            generate_lxd "$path" "${path%.gz}.xz" \
+                "${path%-lxc.tar.gz}-lxd.tar.xz" \
+                "$content_id" "$product_name" "$serial" \
+                "$arch" "$version" \
+                "$pubname" "$stream" || exit 1;;
+    esac
+
     #printf "
     #echo "$content_id
     #echo "version=$version fname=$fname stream=$stream product_name=$product_name"
