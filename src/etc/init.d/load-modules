@@ -18,7 +18,7 @@ parse_modules() {
 	case "$arch" in
 		i?86) march=",i386,x86,";;
 		amd64|x86_64) march=",x86_64,x86,";;
-		ppc64|powerpc) march=",powerpc,ppc64,";;
+		ppc64*|powerpc*) march=",powerpc,ppc64,";;
 		arm*) march=",arm,$arch,";;
 	esac
 	while read line; do
