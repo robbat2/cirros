@@ -4,10 +4,6 @@ ne2k-pci           # arch=x86
 8139cp             # arch=x86
 pcnet32            # arch=x86
 ip_tables
-isofs
-vfat
-nls_cp437
-nls_iso8859-1
 
 ## VirtIO
 9pnet_virtio
@@ -24,3 +20,10 @@ ibmvfc             # arch=powerpc
 ibmvnic            # arch=powerpc
 ibmvscsi           # arch=powerpc
 ibmvscsic          # arch=powerpc
+
+## Filesystem
+## nls* are needed for VFAT
+isofs
+vfat
+nls_cp437
+nls_iso8859-1
