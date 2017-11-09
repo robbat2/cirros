@@ -20,6 +20,7 @@ virtio_scsi
 
 ## PowerPC
 ibmveth            # arch=powerpc
+ibmvfc             # arch=powerpc
 ibmvnic            # arch=powerpc
 ibmvscsi           # arch=powerpc
 ibmvscsic          # arch=powerpc
