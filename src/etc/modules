@@ -40,3 +40,17 @@ ip_tables
 #sit
 #veth
 #vxlan
+
+## USB host
+## absolutely critical if your arch depends on USB devices and these are not
+## built-in.
+ehci-hcd
+ehci-pci
+ehci-platform
+ohci-hcd
+ohci-pci
+ohci-platform
+uhci-hcd
+xhci-hcd
+xhci-pci
+xhci-plat-hcd
