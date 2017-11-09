@@ -54,3 +54,10 @@ uhci-hcd
 xhci-hcd
 xhci-pci
 xhci-plat-hcd
+
+## Input systems
+## absolutely critical if your arch depends on USB input devices.
+hid
+hid-generic
+usbhid
+usbkbd
