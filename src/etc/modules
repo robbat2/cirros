@@ -61,3 +61,9 @@ hid
 hid-generic
 usbhid
 usbkbd
+
+## Block storage
+## Present for config_drive support
+cdrom
+sr_mod
+sg
