@@ -193,6 +193,9 @@ for x in ${MODULES}; do
         }
     }' mat="/${x}.ko$" p="lib/modules/${kver}" "${mdep}"
 done > "${kern_modules}"
+# NOTE: if you want to inject lots of modules for testing, this is the spot to
+# do it!
+#( cd ${kernel_d} ; find -name '*.ko' ) >>"${kern_modules}"
 sort -u "${kern_modules}" > "${kern_files}"
 vmlinuz=$( cd "${kernel_d}" && [ -f boot/vmlinu?-* ] &&
     echo boot/vmlinu?-* ) && echo "${vmlinuz}" >> "${kern_files}" &&
