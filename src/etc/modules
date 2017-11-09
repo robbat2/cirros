@@ -67,3 +67,11 @@ usbkbd
 cdrom
 sr_mod
 sg
+
+## HyperV
+## https://bugs.launchpad.net/cirros/+bug/1099611
+hv_netvsc          # arch=x86
+hv_utils           # arch=x86
+hv_storvsc         # arch=x86
+hid_hyperv         # arch=x86
+hv_vmbus           # arch=x86
